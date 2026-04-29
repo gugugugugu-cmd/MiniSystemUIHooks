@@ -8,6 +8,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Prefs.makePrefsWorldReadable(this)
+
         setContentView(R.layout.activity_main)
 
         val prefs = Prefs.getAppPrefs(this)
@@ -21,11 +24,11 @@ class MainActivity : AppCompatActivity() {
             prefs.getBoolean(Prefs.KEY_HIDE_QS_CARRIER, false)
 
         cbLockscreen.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(Prefs.KEY_HIDE_LOCKSCREEN_STATUSBAR, isChecked).apply()
+            Prefs.setHideLockscreenStatusbar(this, isChecked)
         }
 
         cbQsCarrier.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean(Prefs.KEY_HIDE_QS_CARRIER, isChecked).apply()
+            Prefs.setHideQsCarrier(this, isChecked)
         }
     }
 }
