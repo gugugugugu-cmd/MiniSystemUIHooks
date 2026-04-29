@@ -13,7 +13,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,7 +24,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-
         debug {
             isMinifyEnabled = false
         }
@@ -55,5 +53,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
 
-    compileOnly("de.robv.android.xposed:api:82")
+    compileOnly files('libs/XposedBridgeApi-82.jar')
+
 }
