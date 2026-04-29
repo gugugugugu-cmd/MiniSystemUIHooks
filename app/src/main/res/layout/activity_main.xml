@@ -9,7 +9,7 @@
         android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MiniSystemUIHooks&#10;&#10;启用模块后，请在 LSPosed 中勾选 SystemUI 作用域，然后重启 SystemUI 或重启手机。"
+        android:text="MiniSystemUIHooks&#10;&#10;修改后请重启 SystemUI 或重启手机。"
         android:textSize="16sp" />
 
     <CheckBox
