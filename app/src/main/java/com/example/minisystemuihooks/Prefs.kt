@@ -17,8 +17,11 @@ object Prefs {
         return try {
             val prefs = XSharedPreferences(PACKAGE_NAME, PREF_NAME)
             prefs.reload()
-            prefs.getBoolean(KEY_HIDE_LOCKSCREEN_STATUSBAR, false)
-        } catch (_: Throwable) {
+            val result = prefs.getBoolean(KEY_HIDE_LOCKSCREEN_STATUSBAR, false)
+            HookEntry.log("Pref hide_lockscreen_statusbar=$result")
+            result
+        } catch (t: Throwable) {
+            HookEntry.log(t)
             false
         }
     }
@@ -27,8 +30,11 @@ object Prefs {
         return try {
             val prefs = XSharedPreferences(PACKAGE_NAME, PREF_NAME)
             prefs.reload()
-            prefs.getBoolean(KEY_HIDE_QS_CARRIER, false)
-        } catch (_: Throwable) {
+            val result = prefs.getBoolean(KEY_HIDE_QS_CARRIER, false)
+            HookEntry.log("Pref hide_qs_carrier=$result")
+            result
+        } catch (t: Throwable) {
+            HookEntry.log(t)
             false
         }
     }

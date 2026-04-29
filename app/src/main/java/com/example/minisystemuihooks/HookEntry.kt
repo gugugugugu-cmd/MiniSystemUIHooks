@@ -29,13 +29,15 @@ class HookEntry : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName != SYSTEMUI) return
-        log("handleLoadPackage: ${lpparam.packageName}")
-        HideQsCarrierHook.handleLoadPackage(lpparam)
-    }
 
-    override fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
+        log("handleLoadPackage: ${lpparam.packageName}")
+
+        HideQsCarrierHook.handleLoadPackage(lpparam)
+InitResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
         if (resparam.packageName != SYSTEMUI) return
+
         log("handleInitPackageResources: ${resparam.packageName}")
+
         HideLockscreenStatusbarHook.handleInitPackageResources(resparam)
         HideQsCarrierHook.handleInitPackageResources(resparam)
     }
