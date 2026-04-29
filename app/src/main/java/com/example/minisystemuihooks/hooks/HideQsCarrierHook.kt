@@ -29,7 +29,6 @@ object HideQsCarrierHook {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         HookEntry.log("$className.onInit")
-
                         removeShadeCarrierGroup(param.thisObject)
                     }
                 }

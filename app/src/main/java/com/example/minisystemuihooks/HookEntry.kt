@@ -12,7 +12,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 class HookEntry : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
 
     companion object {
-        private const val "com.android.systemui"
+        private const val SYSTEMUI = "com.android.systemui"
 
         fun log(msg: String) {
             XposedBridge.log("MiniSystemUIHooks: $msg")
