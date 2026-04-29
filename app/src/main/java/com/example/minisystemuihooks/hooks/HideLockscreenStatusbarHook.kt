@@ -10,7 +10,6 @@ import de.robv.android.xposed.callbacks.XC_LayoutInflated
 object HideLockscreenStatusbarHook {
 
     private const val SYSTEMUI = "com.android.systemui"
-    private const val FORCE_ENABLE = true
 
     fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
         try {
@@ -21,14 +20,11 @@ object HideLockscreenStatusbarHook {
                 object : XC_LayoutInflated() {
                     override fun handleLayoutInflated(liparam: LayoutInflatedParam) {
                         HookEntry.log("keyguard_status_bar inflated")
-                        HookEntry.log("hide_lockscreen_statusbar forced=$FORCE_ENABLE")
-
-                        if (!FORCE_ENABLE) return
 
                         hideStatusIconArea(liparam)
                         hideCarrierText(liparam)
 
-                        HookEntry.log("Lockscreen statusbar hide logic applied")
+                        HookEntry.log("Lockscreen statusbar hidden")
                     }
                 }
             )
