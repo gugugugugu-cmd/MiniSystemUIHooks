@@ -32,10 +32,9 @@ class HookEntry : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         log("handleLoadPackage: ${lpparam.packageName}")
 
-        HideQsCarrierHook.handleLoadPackage(lpparam)
-    }
+        HideQsCarrierHook.handle }
 
-    override fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
+paramParam) {
         if (resparam.packageName != SYSTEMUI) return
 
         log("handleInitPackageResources: ${resparam.packageName}")

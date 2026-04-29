@@ -4,7 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.example.minisystemuihooks.HookEntry
-import com.example.minisystemuihooks.Prefs
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_InitPackageResources
@@ -14,6 +13,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 object HideQsCarrierHook {
 
     private const val SYSTEMUI = "com.android.systemui"
+    private const val FORCE_ENABLE = true
 
     fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
         try {
@@ -24,11 +24,9 @@ object HideQsCarrierHook {
                 object : XC_LayoutInflated() {
                     override fun handleLayoutInflated(liparam: LayoutInflatedParam) {
                         HookEntry.log("quick_qs_status_icons inflated")
+                        HookEntry.log("hide_qs_carrier forced=$FORCE_ENABLE")
 
-                        if (!Prefs.isHideQsCarrierEnabled()) {
-                            HookEntry.log("hide_qs_carrier disabled for layout hook")
-                            return
-                        }
+                        if (!FORCE_ENABLE) return
 
                         try {
                             val carrierGroupId = liparam.res.getIdentifier(
@@ -90,12 +88,10 @@ object HideQsCarrierHook {
                 "onFinishInflate",
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        val enabled = Prefs.isHideQsCarrierEnabled()
-                        HookEntry.log("QuickStatusBarHeader.onFinishInflate, hideQs=$enabled")
+                        HookEntry.log("QuickStatusBarHeader.onFinishInflate, hideQs=$FORCE_ENABLE")
 
-                        if (!enabled) return
+                        if (!FORCE_ENABLE) return
 
-                        // 对齐原始 Miscellaneous.hideElements() 的 mQSCarriers 处理
                         val carriers = getObjectFieldSilently(param.thisObject, "mQSCarriers") as? View
                         if (carriers != null) {
                             carriers.visibility = View.INVISIBLE
@@ -132,12 +128,10 @@ object HideQsCarrierHook {
                     "onInit",
                     object : XC_MethodHook() {
                         override fun afterHookedMethod(param: MethodHookParam) {
-                            val enabled = Prefs.isHideQsCarrierEnabled()
-                            HookEntry.log("$name.onInit, hideQs=$enabled")
+                            HookEntry.log("$name.onInit, hideQs=$FORCE_ENABLE")
 
-                            if (!enabled) return
+                            if (!FORCE_ENABLE) return
 
-                            // 对齐原始 Miscellaneous.hideElements()
                             hideOrRemoveFieldView(param.thisObject, "qsCarrierGroup")
                             hideOrRemoveFieldView(param.thisObject, "mShadeCarrierGroup")
                             hideOrRemoveFieldView(param.thisObject, "mQSCarriers")
