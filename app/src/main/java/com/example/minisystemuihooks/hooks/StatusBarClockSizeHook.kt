@@ -24,8 +24,23 @@ object StatusBarClockSizeHook {
     private var mRightClockSize = 14
 
     private val textChangeListener = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence,:       : Editable) {
+        override fun beforeTextChanged(
+            s: CharSequence?,
+            start: Int,
+            count: Int,
+            after: Int
+        ) {
+        }
+
+        override fun onTextChanged(
+            s: CharSequence?,
+            start: Int,
+            before: Int,
+            count: Int
+        ) {
+        }
+
+        override fun afterTextChanged(s: Editable?) {
             setClockSize()
         }
     }
@@ -148,17 +163,11 @@ object StatusBarClockSizeHook {
         val rightClockSize = if (enabled) customSize else mRightClockSize
         val unit = if (enabled) TypedValue.COMPLEX_UNIT_SP else TypedValue.COMPLEX_UNIT_PX
 
-        mClockView?.let {
-            it.setTextSize(unit, leftClockSize.toFloat())
-            if (enabled) setClockGravity(it, Gravity.LEFT or Gravity.CENTER_VERTICAL)
+        mClockView?., Gravity.LEFT or Gravity.CENTER_VERTICAL)
         }
 
         mCenterClockView?.let {
-            it.setTextSize(unit, centerClockSize.toFloat())
-            if (enabled) setClockGravity(it, Gravity.CENTER)
-        }
-
-        mRightClockView?.let {
+           enabled mRightClockView?.let {
             it.setTextSize(unit, rightClockSize.toFloat())
             if (enabled) setClockGravity(it, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
         }
