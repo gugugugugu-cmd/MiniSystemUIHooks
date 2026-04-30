@@ -75,12 +75,9 @@ object StatusBarClockSizeHook {
                             mRightClockView = findTextViewByIdName(rootView, "right_clock")
 
                             updateClockTextSize()
-                            HookEntry.log("CollapsedStatusBarFragment hooked and clock views updated")
                         }
                     }
                 )
-
-                HookEntry.log("Hooked $className#onViewCreated")
             } catch (t: Throwable) {
                 HookEntry.log(t)
             }
@@ -109,7 +106,6 @@ object StatusBarClockSizeHook {
                         mRightClockView = null
 
                         updateClockTextSize()
-                        HookEntry.log("PhoneStatusBarViewController.onViewAttached updated clock")
                     }
                 }
             )
@@ -123,8 +119,6 @@ object StatusBarClockSizeHook {
                     }
                 }
             )
-
-            HookEntry.log("Hooked PhoneStatusBarViewController")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }
@@ -184,8 +178,6 @@ object StatusBarClockSizeHook {
                 setClockGravity(clock, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
             }
         }
-
-        HookEntry.log("setClockSize enabled=$enabled size=$customSize")
     }
 
     private fun setClockGravity(view: TextView, gravity: Int) {

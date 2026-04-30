@@ -2,7 +2,6 @@ package com.example.minisystemuihooks.hooks
 
 import android.view.View
 import android.view.ViewGroup
-import com.example.minisystemuihooks.HookEntry
 import com.example.minisystemuihooks.Prefs
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -19,10 +18,7 @@ object HideQsCarrierHook {
 
         try {
             val clazz = XposedHelpers.findClassIfExists(className, lpparam.classLoader)
-            if (clazz == null) {
-                HookEntry.log("$className not found")
-                return
-            }
+                ?: return
 
             XposedHelpers.findAndHookMethod(
                 clazz,
@@ -30,16 +26,12 @@ object HideQsCarrierHook {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val enabled = Prefs.isHideQsCarrierEnabled()
-                        HookEntry.log("Pref hide_qs_carrier=$enabled")
-                        HookEntry.log("$className.onInit, hideQs=$enabled")
                         if (!enabled) return
 
                         removeShadeCarrierGroup(param.thisObject)
                     }
                 }
             )
-
-            HookEntry.log("Hooked $className#onInit")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }
@@ -47,19 +39,13 @@ object HideQsCarrierHook {
 
     private fun removeShadeCarrierGroup(instance: Any) {
         try {
-            val view = getObjectFieldSilently(instance, "mShadeCarrierGroup") as? View
-            if (view == null) {
-                HookEntry.log("mShadeCarrierGroup not found or null")
-                return
-            }
+            val view = getObjectFieldSilently(instance, "mShadeCarrierGroup") as? View ?: return
 
             val parent = view.parent as? ViewGroup
             if (parent != null) {
                 parent.removeView(view)
-                HookEntry.log("Removed mShadeCarrierGroup")
             } else {
                 view.visibility = View.INVISIBLE
-                HookEntry.log("Set invisible for mShadeCarrierGroup")
             }
         } catch (t: Throwable) {
             HookEntry.log(t)

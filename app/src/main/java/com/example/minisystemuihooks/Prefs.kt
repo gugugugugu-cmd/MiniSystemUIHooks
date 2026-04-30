@@ -2,14 +2,12 @@ package com.example.minisystemuihooks
 
 import android.content.Context
 import android.os.Environment
-import android.util.Log
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.Properties
 
 object Prefs {
-    private const val TAG = "MiniSystemUIHooksPrefs"
     private const val PACKAGE_NAME = "com.example.minisystemuihooks"
 
     const val KEY_HIDE_LOCKSCREEN_STATUSBAR = "hide_lockscreen_statusbar"
@@ -35,8 +33,7 @@ object Prefs {
             if (file.exists()) {
                 FileInputStream(file).use { props.load(it) }
             }
-        } catch (t: Throwable) {
-            Log.e(TAG, "readProps failed", t)
+        } catch (_: Throwable) {
         }
         return props
     }
@@ -46,9 +43,7 @@ object Prefs {
             val file = getConfigFile()
             FileOutputStream(file).use { props.store(it, "MiniSystemUIHooks config") }
             file.setReadable(true, false)
-            Log.d(TAG, "Config written: ${file.absolutePath}")
-        } catch (t: Throwable) {
-            Log.e(TAG, "writeProps failed", t)
+        } catch (_: Throwable) {
         }
     }
 
