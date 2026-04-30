@@ -3,56 +3,52 @@ package com.example.minisystemuihooks
 import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
+    private var currentSize = 14
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        AppConfig.ensureConfigExists(this)
-
         setContentView(R.layout.activity_main)
 
-        val cbLockscreen = findViewById<CheckBox>(R.id.cbLockscreen)
-        val cbQsCarrier = findViewById<CheckBox>(R.id.cbQsCarrier)
-        val btnRestartSystemUI = findViewById<Button>(R.id.btnRestartSystemUI)
+        val cbEnable = findViewById<CheckBox>(R.id.cbEnableClockSize)
+        val tvSize = findViewById<TextView>(R.id.tvClockSizeValue)
+        val btnMinus = findViewById<Button>(R.id.btnMinus)
+        val btnPlus = findViewById<Button>(R.id.btnPlus)
 
-        cbLockscreen.isChecked = AppConfig.isHideLockscreenStatusbarEnabled(this)
-        cbQsCarrier.isChecked = AppConfig.isHideQsCarrierEnabled(this)
+        currentSize = Prefs.getUiClockSize(this).coerceIn(8, 40)
+        cbEnable.isChecked = Prefs.getUiClockSizeEnabled(this)
 
-        cbLockscreen.setOnCheckedChangeListener { _, isChecked ->
-            AppConfig.setHideLockscreenStatusbar(this, isChecked)
-            toast("设置已保存")
+        fun updateSizeText() {
+            tvSize.text = "${currentSize}sp"
         }
 
-        cbQsCarrier.setOnCheckedChangeListener { _, isChecked ->
-            AppConfig.setHideQsCarrier(this, isChecked)
-            toast("设置已保存")
+        updateSizeText()
+
+        cbEnable.setOnCheckedChangeListener { _, isChecked ->
+            Prefs.setUiClockSizeEnabled(this, isChecked)
+            Prefs.setClockSizeEnabled(isChecked)
         }
 
-        btnRestartSystemUI.setOnClickListener {
-            val success = restartSystemUIWithRoot()
-            if (success) {
-                toast("已尝试重启 SystemUI")
-            } else {
-                toast("重启失败，请手动重启 SystemUI 或重启手机")
+        btnMinus.setOnClickListener {
+            if (currentSize > 8) {
+                currentSize--
+                updateSizeText()
+                Prefs.setUiClockSize(this, currentSize)
+                Prefs.setClockSize(currentSize)
             }
         }
-    }
 
-    private fun restartSystemUIWithRoot(): Boolean {
-        return try {
-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "pkill -f com.android.systemui"))
-            val result = process.waitFor()
-            result == 0
-        } catch (_: Throwable) {
-            false
+        btnPlus.setOnClickListener {
+            if (currentSize < 40) {
+                currentSize++
+                updateSizeText()
+                Prefs.setUiClockSize(this, currentSize)
+                Prefs.setClockSize(currentSize)
+            }
         }
-    }
-
-    private fun toast(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }
