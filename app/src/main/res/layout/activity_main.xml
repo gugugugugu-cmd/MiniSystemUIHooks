@@ -16,7 +16,6 @@
             android:text="MiniSystemUIHooks&#10;&#10;修改后请重启 SystemUI 或重启手机。"
             android:textSize="16sp" />
 
-        <!-- 隐藏锁屏状态栏 -->
         <CheckBox
             android:id="@+id/cbLockscreen"
             android:layout_width="match_parent"
@@ -24,7 +23,6 @@
             android:layout_marginTop="24dp"
             android:text="隐藏锁屏状态栏" />
 
-        <!-- 隐藏 QS 运营商组 -->
         <CheckBox
             android:id="@+id/cbQsCarrier"
             android:layout_width="match_parent"
@@ -32,7 +30,6 @@
             android:layout_marginTop="12dp"
             android:text="隐藏 QS 运营商组" />
 
-        <!-- 时钟大小功能 -->
         <CheckBox
             android:id="@+id/cbEnableClockSize"
             android:layout_width="match_parent"

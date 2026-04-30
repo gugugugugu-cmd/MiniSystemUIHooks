@@ -1,12 +1,16 @@
 package com.example.minisystemuihooks
 
+import com.example.minisystemuihooks.hooks.HideLockscreenStatusbarHook
+import com.example.minisystemuihooks.hooks.HideQsCarrierHook
 import com.example.minisystemuihooks.hooks.StatusBarClockSizeHook
+import de.robv.android.xposed.IXposedHookInitPackageResources
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
-class HookEntry : IXposedHookLoadPackage, IXposedHookZygoteInit {
+class HookEntry : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
 
     companion object {
         private const val SYSTEMUI = "com.android.systemui"
@@ -28,6 +32,16 @@ class HookEntry : IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (lpparam.packageName != SYSTEMUI) return
 
         log("handleLoadPackage: ${lpparam.packageName}")
+        HideQsCarrierHook.handleLoadPackage(lpparam)
         StatusBarClockSizeHook.handleLoadPackage(lpparam)
+    }
+
+    override fun handleInitPackageResources(
+        resparam: XC_InitPackageResources.InitPackageResourcesParam
+    ) {
+        if (resparam.packageName != SYSTEMUI) return
+
+        log("handleInitPackageResources: ${resparam.packageName}")
+        HideLockscreenStatusbarHook.handleInitPackageResources(resparam)
     }
 }

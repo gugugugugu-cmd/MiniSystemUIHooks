@@ -3,8 +3,8 @@ package com.example.minisystemuihooks.hooks
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.example.minisystemuihooks.HookConfig
 import com.example.minisystemuihooks.HookEntry
+import com.example.minisystemuihooks.Prefs
 import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_LayoutInflated
 
@@ -20,31 +20,45 @@ object HideLockscreenStatusbarHook {
                 "keyguard_status_bar",
                 object : XC_LayoutInflated() {
                     override fun handleLayoutInflated(liparam: LayoutInflatedParam) {
-                        if (!HookConfig.isHideLockscreenStatusbarEnabled()) return
+                        HookEntry.log("keyguard_status_bar inflated")
+
+                        val enabled = Prefs.isHideLockscreenStatusbarEnabled()
+                        HookEntry.log("Pref hide_lockscreen_statusbar=$enabled")
+                        if (!enabled) {
+                            HookEntry.log("hide_lockscreen_statusbar disabled")
+                            return
+                        }
 
                         hideStatusIconArea(liparam)
                         hideCarrierText(liparam)
+
+                        HookEntry.log("Lockscreen statusbar hidden")
                     }
                 }
             )
         } catch (_: Throwable) {
-            // 静默跳过
+            HookEntry.log("keyguard_status_bar layout not found, skip")
         }
     }
 
     private fun hideStatusIconArea(liparam: XC_LayoutInflated.LayoutInflatedParam) {
         try {
-            val id = liparam.res.getIdentifier(
-                "status_icon_area",
-                "id",
-                SYSTEMUI
-            )
-            if (id == 0) return
+            val id = liparam.res.getIdentifier("status_icon_area", "id", SYSTEMUI)
+            if (id == 0) {
+                HookEntry.log("status_icon_area id not found")
+                return
+            }
 
-            val view = liparam.view.findViewById<LinearLayout>(id) ?: return
+            val view = liparam.view.findViewById<LinearLayout>(id)
+            if (view == null) {
+                HookEntry.log("status_icon_area view not found")
+                return
+            }
+
             view.layoutParams?.height = 0
             view.visibility = View.INVISIBLE
             view.requestLayout()
+            HookEntry.log("status_icon_area hidden")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }
@@ -52,17 +66,22 @@ object HideLockscreenStatusbarHook {
 
     private fun hideCarrierText(liparam: XC_LayoutInflated.LayoutInflatedParam) {
         try {
-            val id = liparam.res.getIdentifier(
-                "keyguard_carrier_text",
-                "id",
-                SYSTEMUI
-            )
-            if (id == 0) return
+            val id = liparam.res.getIdentifier("keyguard_carrier_text", "id", SYSTEMUI)
+            if (id == 0) {
+                HookEntry.log("keyguard_carrier_text id not found")
+                return
+            }
 
-            val view = liparam.view.findViewById<TextView>(id) ?: return
+            val view = liparam.view.findViewById<TextView>(id)
+            if (view == null) {
+                HookEntry.log("keyguard_carrier_text view not found")
+                return
+            }
+
             view.layoutParams?.height = 0
             view.visibility = View.INVISIBLE
             view.requestLayout()
+            HookEntry.log("keyguard_carrier_text hidden")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }

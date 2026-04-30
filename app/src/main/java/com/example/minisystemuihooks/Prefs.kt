@@ -54,9 +54,7 @@ object Prefs {
 
     fun isHideLockscreenStatusbarEnabled(): Boolean {
         return try {
-            readProps()
-                .getProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false")
-                .toBoolean()
+            readProps().getProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false").toBoolean()
         } catch (_: Throwable) {
             false
         }
@@ -64,9 +62,7 @@ object Prefs {
 
     fun isHideQsCarrierEnabled(): Boolean {
         return try {
-            readProps()
-                .getProperty(KEY_HIDE_QS_CARRIER, "false")
-                .toBoolean()
+            readProps().getProperty(KEY_HIDE_QS_CARRIER, "false").toBoolean()
         } catch (_: Throwable) {
             false
         }
@@ -74,9 +70,7 @@ object Prefs {
 
     fun isClockSizeEnabled(): Boolean {
         return try {
-            readProps()
-                .getProperty(KEY_CLOCK_SIZE_ENABLED, "false")
-                .toBoolean()
+            readProps().getProperty(KEY_CLOCK_SIZE_ENABLED, "false").toBoolean()
         } catch (_: Throwable) {
             false
         }
@@ -84,9 +78,7 @@ object Prefs {
 
     fun getClockSize(): Int {
         return try {
-            readProps()
-                .getProperty(KEY_CLOCK_SIZE, "14")
-                .toInt()
+            readProps().getProperty(KEY_CLOCK_SIZE, "14").toInt()
         } catch (_: Throwable) {
             14
         }
