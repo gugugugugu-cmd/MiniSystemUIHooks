@@ -2,6 +2,7 @@ package com.example.minisystemuihooks.hooks
 
 import android.view.View
 import android.view.ViewGroup
+import com.example.minisystemuihooks.HookEntry
 import com.example.minisystemuihooks.Prefs
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
