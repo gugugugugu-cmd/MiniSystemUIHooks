@@ -1,14 +1,20 @@
 package com.example.minisystemuihooks.hooks
 
+import android.content.Context
+import android.graphics.Color
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import com.example.minisystemuihooks.HookConfig
+import android.widget.TextView
 import com.example.minisystemuihooks.HookEntry
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 object HideQsCarrierHook {
+
+    private const val CUSTOM_TEXT = "MiniSystemUIHooks"
 
     fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         hookShadeHeaderController(lpparam)
@@ -29,11 +35,8 @@ object HideQsCarrierHook {
                 "onInit",
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        val enabled = HookConfig.isHideQsCarrierEnabled()
-                        HookEntry.log("$className.onInit, hideQs=$enabled")
-                        if (!enabled) return
-
-                        removeShadeCarrierGroup(param.thisObject)
+                        HookEntry.log("$className.onInit")
+                        replaceShadeCarrierGroupWithText(param.thisObject)
                     }
                 }
             )
@@ -44,24 +47,45 @@ object HideQsCarrierHook {
         }
     }
 
-    private fun removeShadeCarrierGroup(instance: Any) {
+    private fun replaceShadeCarrierGroupWithText(instance: Any) {
         try {
-            val view = getObjectFieldSilently(instance, "mShadeCarrierGroup") as? View
-            if (view == null) {
-                HookEntry.log("mShadeCarrierGroup not found or null")
+            val group = getObjectFieldSilently(instance, "mShadeCarrierGroup") as? ViewGroup
+            if (group == null) {
+                HookEntry.log("mShadeCarrierGroup not found or not ViewGroup")
                 return
             }
 
-            val parent = view.parent as? ViewGroup
-            if (parent != null) {
-                parent.removeView(view)
-                HookEntry.log("Removed mShadeCarrierGroup")
-            } else {
-                view.visibility = View.INVISIBLE
-                HookEntry.log("Set invisible for mShadeCarrierGroup")
+            val context = group.context ?: run {
+                HookEntry.log("mShadeCarrierGroup context is null")
+                return
             }
+
+            group.removeAllViews()
+
+            val textView = createCustomTextView(context)
+            group.addView(textView)
+
+            group.visibility = View.VISIBLE
+            group.requestLayout()
+
+            HookEntry.log("Replaced mShadeCarrierGroup with custom text")
         } catch (t: Throwable) {
             HookEntry.log(t)
+        }
+    }
+
+    private fun createCustomTextView(context: Context): TextView {
+        return TextView(context).apply {
+            text = CUSTOM_TEXT
+            setTextColor(Color.WHITE)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+            gravity = Gravity.START or Gravity.CENTER_VERTICAL
+            isSingleLine = true
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
     }
 
