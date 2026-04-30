@@ -2,6 +2,7 @@ package com.example.minisystemuihooks.hooks
 
 import android.content.Context
 import android.graphics.Color
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -15,6 +16,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 object HideQsCarrierHook {
 
     private const val CUSTOM_TEXT = "MiniSystemUIHooks"
+    private const val CUSTOM_TAG = "mini_custom_qs_text"
 
     fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         hookShadeHeaderController(lpparam)
@@ -36,7 +38,7 @@ object HideQsCarrierHook {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         HookEntry.log("$className.onInit")
-                        replaceShadeCarrierGroupWithText(param.thisObject)
+                        replaceBySiblingText(param.thisObject)
                     }
                 }
             )
@@ -47,28 +49,45 @@ object HideQsCarrierHook {
         }
     }
 
-    private fun replaceShadeCarrierGroupWithText(instance: Any) {
+    private fun replaceBySiblingText(instance: Any) {
         try {
-            val group = getObjectFieldSilently(instance, "mShadeCarrierGroup") as? ViewGroup
-            if (group == null) {
-                HookEntry.log("mShadeCarrierGroup not found or not ViewGroup")
+            val shadeCarrierGroup =
+                getObjectFieldSilently(instance, "mShadeCarrierGroup") as? View ?: run {
+                    HookEntry.log("mShadeCarrierGroup not found or null")
+                    return
+                }
+
+            val parent = shadeCarrierGroup.parent as? ViewGroup
+            if (parent == null) {
+                HookEntry.log("mShadeCarrierGroup parent is null")
                 return
             }
 
-            val context = group.context ?: run {
-                HookEntry.log("mShadeCarrierGroup context is null")
+            // 先隐藏原始运营商组，不破坏内部结构
+            shadeCarrierGroup.visibility = View.GONE
+
+            // 避免重复添加
+            val existing = parent.findViewWithTag<View>(CUSTOM_TAG)
+            if (existing != null) {
+                existing.visibility = View.VISIBLE
+                HookEntry.log("Custom QS text already exists")
                 return
             }
 
-            group.removeAllViews()
+            val textView = createCustomTextView(parent.context).apply {
+                tag = CUSTOM_TAG
+            }
 
-            val textView = createCustomTextView(context)
-            group.addView(textView)
+            // 尽量插在原位置附近
+            val index = parent.indexOfChild(shadeCarrierGroup)
+            if (index >= 0) {
+                parent.addView(textView, index)
+            } else {
+                parent.addView(textView)
+            }
 
-            group.visibility = View.VISIBLE
-            group.requestLayout()
-
-            HookEntry.log("Replaced mShadeCarrierGroup with custom text")
+            parent.requestLayout()
+            HookEntry.log("Inserted custom QS text as sibling")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }
@@ -80,8 +99,8 @@ object HideQsCarrierHook {
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
             gravity = Gravity.START or Gravity.CENTER_VERTICAL
-            isSingleLine = true
-            ellipsize = android.text.TextUtils.TruncateAt.END
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
