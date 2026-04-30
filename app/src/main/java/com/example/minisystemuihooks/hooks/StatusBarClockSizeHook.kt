@@ -104,6 +104,7 @@ object StatusBarClockSizeHook {
                         } catch (_: Throwable) {
                             null
                         }
+
                         mCenterClockView = null
                         mRightClockView = null
 
@@ -163,13 +164,25 @@ object StatusBarClockSizeHook {
         val rightClockSize = if (enabled) customSize else mRightClockSize
         val unit = if (enabled) TypedValue.COMPLEX_UNIT_SP else TypedValue.COMPLEX_UNIT_PX
 
-        mClockView?., Gravity.LEFT or Gravity.CENTER_VERTICAL)
+        mClockView?.let { clock ->
+            clock.setTextSize(unit, leftClockSize.toFloat())
+            if (enabled) {
+                setClockGravity(clock, Gravity.LEFT or Gravity.CENTER_VERTICAL)
+            }
         }
 
-        mCenterClockView?.let {
-           enabled mRightClockView?.let {
-            it.setTextSize(unit, rightClockSize.toFloat())
-            if (enabled) setClockGravity(it, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
+        mCenterClockView?.let { clock ->
+            clock.setTextSize(unit, centerClockSize.toFloat())
+            if (enabled) {
+                setClockGravity(clock, Gravity.CENTER)
+            }
+        }
+
+        mRightClockView?.let { clock ->
+            clock.setTextSize(unit, rightClockSize.toFloat())
+            if (enabled) {
+                setClockGravity(clock, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
+            }
         }
 
         HookEntry.log("setClockSize enabled=$enabled size=$customSize")
