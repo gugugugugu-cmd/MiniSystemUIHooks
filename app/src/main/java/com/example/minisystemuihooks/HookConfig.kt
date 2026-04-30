@@ -12,7 +12,9 @@ object HookConfig {
     private const val KEY_HIDE_QS_CARRIER = "hide_qs_carrier"
 
     private fun getConfigFile(): File {
-        return File("/data/user/0/$PACKAGE_NAME/files/$FILE_NAME")
+        return File(
+            "/storage/emulated/0/Android/media/$PACKAGE_NAME/$FILE_NAME"
+        )
     }
 
     private fun loadProps(): Properties {

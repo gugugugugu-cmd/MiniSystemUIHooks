@@ -1,6 +1,7 @@
 package com.example.minisystemuihooks
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import java.io.File
 import java.io.FileInputStream
@@ -11,14 +12,27 @@ object AppConfig {
     const val KEY_HIDE_LOCKSCREEN_STATUSBAR = "hide_lockscreen_statusbar"
     const val KEY_HIDE_QS_CARRIER = "hide_qs_carrier"
 
+    private const val PACKAGE_NAME = "com.example.minisystemuihooks"
     private const val FILE_NAME = "config.properties"
 
-    private fun getConfigFile(context: Context): File {
-        return File(context.filesDir, FILE_NAME)
+    private fun getBaseDir(): File {
+        return File(
+            Environment.getExternalStorageDirectory(),
+            "Android/media/$PACKAGE_NAME"
+        )
+    }
+
+    fun getConfigFile(): File {
+        return File(getBaseDir(), FILE_NAME)
     }
 
     fun ensureConfigExists(context: Context) {
-        val file = getConfigFile(context)
+        val dir = getBaseDir()
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+
+        val file = getConfigFile()
         if (!file.exists()) {
             val props = Properties().apply {
                 setProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false")
@@ -26,38 +40,47 @@ object AppConfig {
             }
             FileOutputStream(file).use { props.store(it, "MiniSystemUIHooks config") }
         }
-        makeConfigReadable(context)
+
+        Log.i("MiniSystemUIHooks", "Config path: ${file.absolutePath}")
     }
 
     fun isHideLockscreenStatusbarEnabled(context: Context): Boolean {
-        return loadProps(context).getProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false").toBoolean()
+        return loadProps().getProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false").toBoolean()
     }
 
     fun isHideQsCarrierEnabled(context: Context): Boolean {
-        return loadProps(context).getProperty(KEY_HIDE_QS_CARRIER, "false").toBoolean()
+        return loadProps().getProperty(KEY_HIDE_QS_CARRIER, "false").toBoolean()
     }
 
     fun setHideLockscreenStatusbar(context: Context, enabled: Boolean) {
-        val props = loadProps(context)
+        val props = loadProps()
         props.setProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, enabled.toString())
-        saveProps(context, props)
+        saveProps(props)
     }
 
     fun setHideQsCarrier(context: Context, enabled: Boolean) {
-        val props = loadProps(context)
+        val props = loadProps()
         props.setProperty(KEY_HIDE_QS_CARRIER, enabled.toString())
-        saveProps(context, props)
+        saveProps(props)
     }
 
-    private fun loadProps(context: Context): Properties {
+    private fun loadProps(): Properties {
         val props = Properties()
-        val file = getConfigFile(context)
-
-        if (!file.exists()) {
-            ensureConfigExists(context)
-        }
+        val file = getConfigFile()
 
         try {
+            if (!file.exists()) {
+                val dir = getBaseDir()
+                if (!dir.exists()) dir.mkdirs()
+                FileOutputStream(file).use {
+                    Properties().apply {
+                        setProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false")
+                        setProperty(KEY_HIDE_QS_CARRIER, "false")
+                        store(it, "MiniSystemUIHooks config")
+                    }
+                }
+            }
+
             FileInputStream(file).use { props.load(it) }
         } catch (t: Throwable) {
             Log.e("MiniSystemUIHooks", "loadProps failed", t)
@@ -66,34 +89,17 @@ object AppConfig {
         return props
     }
 
-    private fun saveProps(context: Context, props: Properties) {
-        val file = getConfigFile(context)
+    private fun saveProps(props: Properties) {
+        val dir = getBaseDir()
+        if (!dir.exists()) dir.mkdirs()
+
+        val file = getConfigFile()
 
         try {
             FileOutputStream(file).use { props.store(it, "MiniSystemUIHooks config") }
-            makeConfigReadable(context)
+            Log.i("MiniSystemUIHooks", "Config saved: ${file.absolutePath}")
         } catch (t: Throwable) {
             Log.e("MiniSystemUIHooks", "saveProps failed", t)
-        }
-    }
-
-    fun makeConfigReadable(context: Context) {
-        try {
-            val filesDir = context.filesDir
-            val configFile = getConfigFile(context)
-
-            if (filesDir.exists()) {
-                filesDir.setReadable(true, false)
-                filesDir.setExecutable(true, false)
-            }
-
-            if (configFile.exists()) {
-                configFile.setReadable(true, false)
-            }
-
-            Log.i("MiniSystemUIHooks", "Config readable: ${configFile.absolutePath}")
-        } catch (t: Throwable) {
-            Log.e("MiniSystemUIHooks", "makeConfigReadable failed", t)
         }
     }
 }
