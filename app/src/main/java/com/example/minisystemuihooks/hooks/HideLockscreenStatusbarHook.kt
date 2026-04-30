@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.minisystemuihooks.HookEntry
-import com.example.minisystemuihooks.Prefs
+import com.example.minisystemuihooks.HookPrefs
 import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_LayoutInflated
 
@@ -22,7 +22,7 @@ object HideLockscreenStatusbarHook {
                     override fun handleLayoutInflated(liparam: LayoutInflatedParam) {
                         HookEntry.log("keyguard_status_bar inflated")
 
-                        val enabled = Prefs.isHideLockscreenStatusbarEnabled()
+                        val enabled = HookPrefs.isHideLockscreenStatusbarEnabled()
                         if (!enabled) {
                             HookEntry.log("hide_lockscreen_statusbar disabled")
                             return

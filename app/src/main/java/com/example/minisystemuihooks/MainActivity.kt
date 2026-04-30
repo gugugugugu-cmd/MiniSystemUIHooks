@@ -9,26 +9,26 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Prefs.makePrefsWorldReadable(this)
+        AppPrefs.makePrefsWorldReadable(this)
 
         setContentView(R.layout.activity_main)
 
-        val prefs = Prefs.getAppPrefs(this)
+        val prefs = AppPrefs.getPrefs(this)
 
         val cbLockscreen = findViewById<CheckBox>(R.id.cbLockscreen)
         val cbQsCarrier = findViewById<CheckBox>(R.id.cbQsCarrier)
 
         cbLockscreen.isChecked =
-            prefs.getBoolean(Prefs.KEY_HIDE_LOCKSCREEN_STATUSBAR, false)
+            prefs.getBoolean(AppPrefs.KEY_HIDE_LOCKSCREEN_STATUSBAR, false)
         cbQsCarrier.isChecked =
-            prefs.getBoolean(Prefs.KEY_HIDE_QS_CARRIER, false)
+            prefs.getBoolean(AppPrefs.KEY_HIDE_QS_CARRIER, false)
 
         cbLockscreen.setOnCheckedChangeListener { _, isChecked ->
-            Prefs.setHideLockscreenStatusbar(this, isChecked)
+            AppPrefs.setHideLockscreenStatusbar(this, isChecked)
         }
 
         cbQsCarrier.setOnCheckedChangeListener { _, isChecked ->
-            Prefs.setHideQsCarrier(this, isChecked)
+            AppPrefs.setHideQsCarrier(this, isChecked)
         }
     }
 }
