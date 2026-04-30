@@ -12,9 +12,7 @@ object HookConfig {
     private const val KEY_HIDE_QS_CARRIER = "hide_qs_carrier"
 
     private fun getConfigFile(): File {
-        return File(
-            "/storage/emulated/0/Android/media/$PACKAGE_NAME/$FILE_NAME"
-        )
+        return File("/storage/emulated/0/Android/media/$PACKAGE_NAME/$FILE_NAME")
     }
 
     private fun loadProps(): Properties {
@@ -24,9 +22,6 @@ object HookConfig {
         try {
             if (file.exists()) {
                 FileInputStream(file).use { props.load(it) }
-                HookEntry.log("Loaded config: ${file.absolutePath}")
-            } else {
-                HookEntry.log("Config file not found: ${file.absolutePath}")
             }
         } catch (t: Throwable) {
             HookEntry.log(t)
@@ -37,11 +32,9 @@ object HookConfig {
 
     fun isHideLockscreenStatusbarEnabled(): Boolean {
         return try {
-            val result = loadProps()
+            loadProps()
                 .getProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false")
                 .toBoolean()
-            HookEntry.log("Config hide_lockscreen_statusbar=$result")
-            result
         } catch (t: Throwable) {
             HookEntry.log(t)
             false
@@ -50,11 +43,9 @@ object HookConfig {
 
     fun isHideQsCarrierEnabled(): Boolean {
         return try {
-            val result = loadProps()
+            loadProps()
                 .getProperty(KEY_HIDE_QS_CARRIER, "false")
                 .toBoolean()
-            HookEntry.log("Config hide_qs_carrier=$result")
-            result
         } catch (t: Throwable) {
             HookEntry.log(t)
             false

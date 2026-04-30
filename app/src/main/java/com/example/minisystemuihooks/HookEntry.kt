@@ -12,34 +12,22 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 class HookEntry : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
 
     companion object {
-        private const val SYSTEMUI = "com.android.systemui"
-
-        fun log(msg: String) {
-            XposedBridge.log("MiniSystemUIHooks: $msg")
-        }
-
         fun log(t: Throwable) {
             XposedBridge.log(t)
         }
     }
 
-    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
-        log("initZygote")
-    }
+    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) = Unit
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        if (lpparam.packageName != SYSTEMUI) return
-
-        log("handleLoadPackage: ${lpparam.packageName}")
+        if (lpparam.packageName != "com.android.systemui") return
         HideQsCarrierHook.handleLoadPackage(lpparam)
     }
 
     override fun handleInitPackageResources(
         resparam: XC_InitPackageResources.InitPackageResourcesParam
     ) {
-        if (resparam.packageName != SYSTEMUI) return
-
-        log("handleInitPackageResources: ${resparam.packageName}")
+        if (resparam.packageName != "com.android.systemui") return
         HideLockscreenStatusbarHook.handleInitPackageResources(resparam)
     }
 }

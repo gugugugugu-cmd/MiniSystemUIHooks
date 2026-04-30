@@ -20,23 +20,15 @@ object HideLockscreenStatusbarHook {
                 "keyguard_status_bar",
                 object : XC_LayoutInflated() {
                     override fun handleLayoutInflated(liparam: LayoutInflatedParam) {
-                        HookEntry.log("keyguard_status_bar inflated")
-
-                        val enabled = HookConfig.isHideLockscreenStatusbarEnabled()
-                        if (!enabled) {
-                            HookEntry.log("hide_lockscreen_statusbar disabled")
-                            return
-                        }
+                        if (!HookConfig.isHideLockscreenStatusbarEnabled()) return
 
                         hideStatusIconArea(liparam)
                         hideCarrierText(liparam)
-
-                        HookEntry.log("Lockscreen statusbar hidden")
                     }
                 }
             )
         } catch (_: Throwable) {
-            HookEntry.log("keyguard_status_bar layout not found, skip")
+            // 静默跳过
         }
     }
 
@@ -47,23 +39,12 @@ object HideLockscreenStatusbarHook {
                 "id",
                 SYSTEMUI
             )
+            if (id == 0) return
 
-            if (id == 0) {
-                HookEntry.log("status_icon_area id not found")
-                return
-            }
-
-            val view = liparam.view.findViewById<LinearLayout>(id)
-            if (view == null) {
-                HookEntry.log("status_icon_area view not found")
-                return
-            }
-
+            val view = liparam.view.findViewById<LinearLayout>(id) ?: return
             view.layoutParams?.height = 0
             view.visibility = View.INVISIBLE
             view.requestLayout()
-
-            HookEntry.log("status_icon_area hidden")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }
@@ -76,23 +57,12 @@ object HideLockscreenStatusbarHook {
                 "id",
                 SYSTEMUI
             )
+            if (id == 0) return
 
-            if (id == 0) {
-                HookEntry.log("keyguard_carrier_text id not found")
-                return
-            }
-
-            val view = liparam.view.findViewById<TextView>(id)
-            if (view == null) {
-                HookEntry.log("keyguard_carrier_text view not found")
-                return
-            }
-
+            val view = liparam.view.findViewById<TextView>(id) ?: return
             view.layoutParams?.height = 0
             view.visibility = View.INVISIBLE
             view.requestLayout()
-
-            HookEntry.log("keyguard_carrier_text hidden")
         } catch (t: Throwable) {
             HookEntry.log(t)
         }
