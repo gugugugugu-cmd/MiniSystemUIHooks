@@ -3,7 +3,6 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
@@ -19,12 +18,18 @@
             </intent-filter>
         </activity>
 
+        <provider
+            android:name=".ConfigProvider"
+            android:authorities="com.example.minisystemuihooks.config"
+            android:exported="true"
+            android:directBootAware="true" />
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Hide lockscreen statusbar and QS carrier group" />
+            android:value="Hide lockscreen statusbar, hide QS carrier group, custom statusbar clock size" />
         <meta-data
             android:name="xposedminversion"
             android:value="54" />

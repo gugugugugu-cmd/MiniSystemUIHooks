@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.minisystemuihooks.HookEntry
 import com.example.minisystemuihooks.Prefs
+import com.example.minisystemuihooks.ProviderConfig
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -26,7 +27,17 @@ object HideQsCarrierHook {
                 "onInit",
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        val enabled = Prefs.isHideQsCarrierEnabled()
+                        val context = try {
+                            XposedHelpers.getObjectField(param.thisObject, "context") as? android.content.Context
+                        } catch (_: Throwable) {
+                            null
+                        } ?: return
+
+                        val enabled = ProviderConfig.getBoolean(
+                            context,
+                            Prefs.KEY_HIDE_QS_CARRIER,
+                            false
+                        )
                         if (!enabled) return
 
                         removeShadeCarrierGroup(param.thisObject)

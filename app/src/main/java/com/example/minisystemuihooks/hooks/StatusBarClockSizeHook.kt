@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.TextView
 import com.example.minisystemuihooks.HookEntry
 import com.example.minisystemuihooks.Prefs
+import com.example.minisystemuihooks.ProviderConfig
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -24,22 +25,8 @@ object StatusBarClockSizeHook {
     private var mRightClockSize = 14
 
     private val textChangeListener = object : TextWatcher {
-        override fun beforeTextChanged(
-            s: CharSequence?,
-            start: Int,
-            count: Int,
-            after: Int
-        ) {
-        }
-
-        override fun onTextChanged(
-            s: CharSequence?,
-            start: Int,
-            before: Int,
-            count: Int
-        ) {
-        }
-
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable?) {
             setClockSize()
         }
@@ -150,8 +137,18 @@ object StatusBarClockSizeHook {
     }
 
     private fun setClockSize() {
-        val enabled = Prefs.isClockSizeEnabled()
-        val customSize = Prefs.getClockSize()
+        val context = mClockView?.context ?: return
+
+        val enabled = ProviderConfig.getBoolean(
+            context,
+            Prefs.KEY_CLOCK_SIZE_ENABLED,
+            false
+        )
+        val customSize = ProviderConfig.getInt(
+            context,
+            Prefs.KEY_CLOCK_SIZE,
+            14
+        )
 
         val leftClockSize = if (enabled) customSize else mLeftClockSize
         val centerClockSize = if (enabled) customSize else mCenterClockSize
@@ -160,32 +157,17 @@ object StatusBarClockSizeHook {
 
         mClockView?.let { clock ->
             clock.setTextSize(unit, leftClockSize.toFloat())
-            if (enabled) {
-                setClockGravity(clock, Gravity.LEFT or Gravity.CENTER_VERTICAL)
-            }
+            if (enabled) clock.gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
         }
 
         mCenterClockView?.let { clock ->
             clock.setTextSize(unit, centerClockSize.toFloat())
-            if (enabled) {
-                setClockGravity(clock, Gravity.CENTER)
-            }
+            if (enabled) clock.gravity = Gravity.CENTER
         }
 
         mRightClockView?.let { clock ->
             clock.setTextSize(unit, rightClockSize.toFloat())
-            if (enabled) {
-                setClockGravity(clock, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
-            }
-        }
-    }
-
-    private fun setClockGravity(view: TextView, gravity: Int) {
-        try {
-            view.gravity = gravity
-            view.requestLayout()
-        } catch (t: Throwable) {
-            HookEntry.log(t)
+            if (enabled) clock.gravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
         }
     }
 

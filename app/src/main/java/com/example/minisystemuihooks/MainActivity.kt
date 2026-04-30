@@ -47,18 +47,15 @@ class MainActivity : AppCompatActivity() {
         updateClockSizeControlsVisibility()
 
         cbLockscreen.setOnCheckedChangeListener { _, isChecked ->
-            Prefs.setUiHideLockscreenStatusbar(this, isChecked)
-            Prefs.setHideLockscreenStatusbar(isChecked)
+            Prefs.setHideLockscreenStatusbar(this, isChecked)
         }
 
         cbQsCarrier.setOnCheckedChangeListener { _, isChecked ->
-            Prefs.setUiHideQsCarrier(this, isChecked)
-            Prefs.setHideQsCarrier(isChecked)
+            Prefs.setHideQsCarrier(this, isChecked)
         }
 
         cbEnableClockSize.setOnCheckedChangeListener { _, isChecked ->
-            Prefs.setUiClockSizeEnabled(this, isChecked)
-            Prefs.setClockSizeEnabled(isChecked)
+            Prefs.setClockSizeEnabled(this, isChecked)
             updateClockSizeControlsVisibility()
         }
 
@@ -66,8 +63,7 @@ class MainActivity : AppCompatActivity() {
             if (currentClockSize > 8) {
                 currentClockSize--
                 updateClockSizeText()
-                Prefs.setUiClockSize(this, currentClockSize)
-                Prefs.setClockSize(currentClockSize)
+                Prefs.setClockSize(this, currentClockSize)
             }
         }
 
@@ -75,8 +71,7 @@ class MainActivity : AppCompatActivity() {
             if (currentClockSize < 40) {
                 currentClockSize++
                 updateClockSizeText()
-                Prefs.setUiClockSize(this, currentClockSize)
-                Prefs.setClockSize(currentClockSize)
+                Prefs.setClockSize(this, currentClockSize)
             }
         }
     }

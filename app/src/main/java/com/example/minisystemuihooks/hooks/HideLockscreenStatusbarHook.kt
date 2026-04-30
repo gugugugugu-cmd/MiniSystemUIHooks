@@ -5,6 +5,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.minisystemuihooks.HookEntry
 import com.example.minisystemuihooks.Prefs
+import com.example.minisystemuihooks.ProviderConfig
 import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_LayoutInflated
 
@@ -20,7 +21,11 @@ object HideLockscreenStatusbarHook {
                 "keyguard_status_bar",
                 object : XC_LayoutInflated() {
                     override fun handleLayoutInflated(liparam: LayoutInflatedParam) {
-                        val enabled = Prefs.isHideLockscreenStatusbarEnabled()
+                        val enabled = ProviderConfig.getBoolean(
+                            liparam.view.context,
+                            Prefs.KEY_HIDE_LOCKSCREEN_STATUSBAR,
+                            false
+                        )
                         if (!enabled) return
 
                         hideStatusIconArea(liparam)
@@ -29,7 +34,7 @@ object HideLockscreenStatusbarHook {
                 }
             )
         } catch (_: Throwable) {
-            // 静默：某些 ROM 没这个布局，不算错误
+            // ignore
         }
     }
 
