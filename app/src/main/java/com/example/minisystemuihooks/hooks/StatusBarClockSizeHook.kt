@@ -1,8 +1,6 @@
 package com.example.minisystemuihooks.hooks
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
@@ -23,8 +21,6 @@ object StatusBarClockSizeHook {
     private var mCenterClockView: TextView? = null
     private var mRightClockView: TextView? = null
 
-    private val mainHandler = Handler(Looper.getMainLooper())
-
     private val textChangeListener = object : TextWatcher {
         override fun beforeTextChanged(
             s: CharSequence?,
@@ -43,8 +39,7 @@ object StatusBarClockSizeHook {
         }
 
         override fun afterTextChanged(s: Editable?) {
-            HookEntry.log("Clock text changed -> maybe reapply fixed size")
-            applyClockSizeRepeatedly()
+            setClockSizeIfEnabled()
         }
     }
 
@@ -78,8 +73,9 @@ object StatusBarClockSizeHook {
                             mRightClockView = findTextViewByIdName(rootView, "right_clock")
 
                             addClockTextListener()
-                            HookEntry.log("CollapsedStatusBarFragment hooked and clock views updated")
-                            applyClockSizeRepeatedly()
+                            setClockSizeIfEnabled()
+
+                            HookEntry.log("CollapsedStatusBarFragment applied fixed clock size")
                         }
                     }
                 )
@@ -113,8 +109,9 @@ object StatusBarClockSizeHook {
                         mRightClockView = null
 
                         addClockTextListener()
-                        HookEntry.log("PhoneStatusBarViewController.onViewAttached updated clock")
-                        applyClockSizeRepeatedly()
+                        setClockSizeIfEnabled()
+
+                        HookEntry.log("PhoneStatusBarViewController applied fixed clock size")
                     }
                 }
             )
@@ -149,22 +146,6 @@ object StatusBarClockSizeHook {
         mClockView?.removeTextChangedListener(textChangeListener)
         mCenterClockView?.removeTextChangedListener(textChangeListener)
         mRightClockView?.removeTextChangedListener(textChangeListener)
-    }
-
-    private fun applyClockSizeRepeatedly() {
-        setClockSizeIfEnabled()
-
-        mClockView?.post {
-            HookEntry.log("Reapply fixed clock size via post")
-            setClockSizeIfEnabled()
-        }
-
-        listOf(120L, 300L, 600L, 1000L).forEach { delayMs ->
-            mainHandler.postDelayed({
-                HookEntry.log("Reapply fixed clock size delayed=${delayMs}ms")
-                setClockSizeIfEnabled()
-            }, delayMs)
-        }
     }
 
     private fun setClockSizeIfEnabled() {
