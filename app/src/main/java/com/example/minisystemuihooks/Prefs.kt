@@ -2,14 +2,18 @@ package com.example.minisystemuihooks
 
 import android.content.Context
 import android.os.Environment
+import android.util.Log
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.Properties
 
 object Prefs {
+    private const val TAG = "MiniSystemUIHooksPrefs"
     private const val PACKAGE_NAME = "com.example.minisystemuihooks"
 
+    const val KEY_HIDE_LOCKSCREEN_STATUSBAR = "hide_lockscreen_statusbar"
+    const val KEY_HIDE_QS_CARRIER = "hide_qs_carrier"
     const val KEY_CLOCK_SIZE_ENABLED = "statusbar_clock_size_enabled"
     const val KEY_CLOCK_SIZE = "statusbar_clock_size"
 
@@ -32,7 +36,7 @@ object Prefs {
                 FileInputStream(file).use { props.load(it) }
             }
         } catch (t: Throwable) {
-            HookEntry.log(t)
+            Log.e(TAG, "readProps failed", t)
         }
         return props
     }
@@ -42,36 +46,62 @@ object Prefs {
             val file = getConfigFile()
             FileOutputStream(file).use { props.store(it, "MiniSystemUIHooks config") }
             file.setReadable(true, false)
-            HookEntry.log("Config written: ${file.absolutePath}")
+            Log.d(TAG, "Config written: ${file.absolutePath}")
         } catch (t: Throwable) {
-            HookEntry.log(t)
+            Log.e(TAG, "writeProps failed", t)
+        }
+    }
+
+    fun isHideLockscreenStatusbarEnabled(): Boolean {
+        return try {
+            readProps()
+                .getProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, "false")
+                .toBoolean()
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    fun isHideQsCarrierEnabled(): Boolean {
+        return try {
+            readProps()
+                .getProperty(KEY_HIDE_QS_CARRIER, "false")
+                .toBoolean()
+        } catch (_: Throwable) {
+            false
         }
     }
 
     fun isClockSizeEnabled(): Boolean {
         return try {
-            val result = readProps()
+            readProps()
                 .getProperty(KEY_CLOCK_SIZE_ENABLED, "false")
                 .toBoolean()
-            HookEntry.log("File pref statusbar_clock_size_enabled=$result")
-            result
-        } catch (t: Throwable) {
-            HookEntry.log(t)
+        } catch (_: Throwable) {
             false
         }
     }
 
     fun getClockSize(): Int {
         return try {
-            val result = readProps()
+            readProps()
                 .getProperty(KEY_CLOCK_SIZE, "14")
                 .toInt()
-            HookEntry.log("File pref statusbar_clock_size=$result")
-            result
-        } catch (t: Throwable) {
-            HookEntry.log(t)
+        } catch (_: Throwable) {
             14
         }
+    }
+
+    fun setHideLockscreenStatusbar(enabled: Boolean) {
+        val props = readProps()
+        props.setProperty(KEY_HIDE_LOCKSCREEN_STATUSBAR, enabled.toString())
+        writeProps(props)
+    }
+
+    fun setHideQsCarrier(enabled: Boolean) {
+        val props = readProps()
+        props.setProperty(KEY_HIDE_QS_CARRIER, enabled.toString())
+        writeProps(props)
     }
 
     fun setClockSizeEnabled(enabled: Boolean) {
@@ -86,6 +116,16 @@ object Prefs {
         writeProps(props)
     }
 
+    fun getUiHideLockscreenStatusbar(context: Context): Boolean {
+        return context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
+            .getBoolean(KEY_HIDE_LOCKSCREEN_STATUSBAR, false)
+    }
+
+    fun getUiHideQsCarrier(context: Context): Boolean {
+        return context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
+            .getBoolean(KEY_HIDE_QS_CARRIER, false)
+    }
+
     fun getUiClockSizeEnabled(context: Context): Boolean {
         return context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
             .getBoolean(KEY_CLOCK_SIZE_ENABLED, false)
@@ -94,6 +134,20 @@ object Prefs {
     fun getUiClockSize(context: Context): Int {
         return context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
             .getInt(KEY_CLOCK_SIZE, 14)
+    }
+
+    fun setUiHideLockscreenStatusbar(context: Context, enabled: Boolean) {
+        context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_HIDE_LOCKSCREEN_STATUSBAR, enabled)
+            .apply()
+    }
+
+    fun setUiHideQsCarrier(context: Context, enabled: Boolean) {
+        context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_HIDE_QS_CARRIER, enabled)
+            .apply()
     }
 
     fun setUiClockSizeEnabled(context: Context, enabled: Boolean) {
