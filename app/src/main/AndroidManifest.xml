@@ -27,6 +27,11 @@
         <meta-data
             android:name="xposedminversion"
             android:value="54" />
+
+        <!-- 推荐作用域 -->
+        <meta-data
+            android:name="xposedscope"
+            android:value="com.android.systemui" />
     </application>
 
 </manifest>
