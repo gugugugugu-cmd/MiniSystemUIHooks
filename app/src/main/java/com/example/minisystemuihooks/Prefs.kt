@@ -14,8 +14,7 @@ object Prefs {
 
     const val KEY_HIDE_LOCKSCREEN_STATUSBAR = "hide_lockscreen_statusbar"
     const val KEY_HIDE_QS_CARRIER = "hide_qs_carrier"
-    const val KEY_CLOCK_SIZE_ENABLED = "statusbar_clock_size_enabled"
-    const val KEY_CLOCK_SIZE = "statusbar_clock_size"
+    const val KEY_ENABLE_FIXED_CLOCK_SIZE = "enable_fixed_clock_size"
 
     private fun getConfigDir(): File {
         val base = Environment.getExternalStorageDirectory()
@@ -68,19 +67,11 @@ object Prefs {
         }
     }
 
-    fun isClockSizeEnabled(): Boolean {
+    fun isFixedClockSizeEnabled(): Boolean {
         return try {
-            readProps().getProperty(KEY_CLOCK_SIZE_ENABLED, "false").toBoolean()
+            readProps().getProperty(KEY_ENABLE_FIXED_CLOCK_SIZE, "false").toBoolean()
         } catch (_: Throwable) {
             false
-        }
-    }
-
-    fun getClockSize(): Int {
-        return try {
-            readProps().getProperty(KEY_CLOCK_SIZE, "14").toInt()
-        } catch (_: Throwable) {
-            14
         }
     }
 
@@ -96,15 +87,9 @@ object Prefs {
         writeProps(props)
     }
 
-    fun setClockSizeEnabled(enabled: Boolean) {
+    fun setFixedClockSizeEnabled(enabled: Boolean) {
         val props = readProps()
-        props.setProperty(KEY_CLOCK_SIZE_ENABLED, enabled.toString())
-        writeProps(props)
-    }
-
-    fun setClockSize(size: Int) {
-        val props = readProps()
-        props.setProperty(KEY_CLOCK_SIZE, size.toString())
+        props.setProperty(KEY_ENABLE_FIXED_CLOCK_SIZE, enabled.toString())
         writeProps(props)
     }
 
@@ -118,14 +103,9 @@ object Prefs {
             .getBoolean(KEY_HIDE_QS_CARRIER, false)
     }
 
-    fun getUiClockSizeEnabled(context: Context): Boolean {
+    fun getUiFixedClockSizeEnabled(context: Context): Boolean {
         return context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
-            .getBoolean(KEY_CLOCK_SIZE_ENABLED, false)
-    }
-
-    fun getUiClockSize(context: Context): Int {
-        return context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
-            .getInt(KEY_CLOCK_SIZE, 14)
+            .getBoolean(KEY_ENABLE_FIXED_CLOCK_SIZE, false)
     }
 
     fun setUiHideLockscreenStatusbar(context: Context, enabled: Boolean) {
@@ -142,17 +122,10 @@ object Prefs {
             .apply()
     }
 
-    fun setUiClockSizeEnabled(context: Context, enabled: Boolean) {
+    fun setUiFixedClockSizeEnabled(context: Context, enabled: Boolean) {
         context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
             .edit()
-            .putBoolean(KEY_CLOCK_SIZE_ENABLED, enabled)
-            .apply()
-    }
-
-    fun setUiClockSize(context: Context, size: Int) {
-        context.getSharedPreferences("ui_settings", Context.MODE_PRIVATE)
-            .edit()
-            .putInt(KEY_CLOCK_SIZE, size)
+            .putBoolean(KEY_ENABLE_FIXED_CLOCK_SIZE, enabled)
             .apply()
     }
 }

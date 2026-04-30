@@ -17,13 +17,11 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 object StatusBarClockSizeHook {
 
+    private const val FIXED_CLOCK_SIZE_SP = 21
+
     private var mClockView: TextView? = null
     private var mCenterClockView: TextView? = null
     private var mRightClockView: TextView? = null
-
-    private var mLeftClockSize = 14
-    private var mCenterClockSize = 14
-    private var mRightClockSize = 14
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -45,7 +43,7 @@ object StatusBarClockSizeHook {
         }
 
         override fun afterTextChanged(s: Editable?) {
-            HookEntry.log("Clock text changed -> reapply size")
+            HookEntry.log("Clock text changed -> maybe reapply fixed size")
             applyClockSizeRepeatedly()
         }
     }
@@ -79,7 +77,7 @@ object StatusBarClockSizeHook {
                             mCenterClockView = findTextViewByIdName(rootView, "center_clock")
                             mRightClockView = findTextViewByIdName(rootView, "right_clock")
 
-                            updateClockTextSize()
+                            addClockTextListener()
                             HookEntry.log("CollapsedStatusBarFragment hooked and clock views updated")
                             applyClockSizeRepeatedly()
                         }
@@ -114,7 +112,7 @@ object StatusBarClockSizeHook {
                         mCenterClockView = null
                         mRightClockView = null
 
-                        updateClockTextSize()
+                        addClockTextListener()
                         HookEntry.log("PhoneStatusBarViewController.onViewAttached updated clock")
                         applyClockSizeRepeatedly()
                     }
@@ -137,15 +135,6 @@ object StatusBarClockSizeHook {
         }
     }
 
-    private fun updateClockTextSize() {
-        mLeftClockSize = mClockView?.textSize?.toInt() ?: 14
-        mCenterClockSize = mCenterClockView?.textSize?.toInt() ?: 14
-        mRightClockSize = mRightClockView?.textSize?.toInt() ?: 14
-
-        setClockSize()
-        addClockTextListener()
-    }
-
     private fun addClockTextListener() {
         mClockView?.removeTextChangedListener(textChangeListener)
         mCenterClockView?.removeTextChangedListener(textChangeListener)
@@ -163,55 +152,43 @@ object StatusBarClockSizeHook {
     }
 
     private fun applyClockSizeRepeatedly() {
-        // 立即应用
-        setClockSize()
+        setClockSizeIfEnabled()
 
-        // post 一次
         mClockView?.post {
-            HookEntry.log("Reapply clock size via post")
-            setClockSize()
+            HookEntry.log("Reapply fixed clock size via post")
+            setClockSizeIfEnabled()
         }
 
-        // 多次延迟兜底，覆盖 SystemUI 后续把默认值刷回去的情况
         listOf(120L, 300L, 600L, 1000L).forEach { delayMs ->
             mainHandler.postDelayed({
-                HookEntry.log("Reapply clock size delayed=${delayMs}ms")
-                setClockSize()
+                HookEntry.log("Reapply fixed clock size delayed=${delayMs}ms")
+                setClockSizeIfEnabled()
             }, delayMs)
         }
     }
 
-    private fun setClockSize() {
-        val enabled = Prefs.isClockSizeEnabled()
-        val customSize = Prefs.getClockSize()
+    private fun setClockSizeIfEnabled() {
+        val enabled = Prefs.isFixedClockSizeEnabled()
+        HookEntry.log("Fixed clock size enabled=$enabled")
 
-        val leftClockSize = if (enabled) customSize else mLeftClockSize
-        val centerClockSize = if (enabled) customSize else mCenterClockSize
-        val rightClockSize = if (enabled) customSize else mRightClockSize
-        val unit = if (enabled) TypedValue.COMPLEX_UNIT_SP else TypedValue.COMPLEX_UNIT_PX
+        if (!enabled) return
 
         mClockView?.let { clock ->
-            clock.setTextSize(unit, leftClockSize.toFloat())
-            if (enabled) {
-                setClockGravity(clock, Gravity.LEFT or Gravity.CENTER_VERTICAL)
-            }
+            clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, FIXED_CLOCK_SIZE_SP.toFloat())
+            setClockGravity(clock, Gravity.LEFT or Gravity.CENTER_VERTICAL)
         }
 
         mCenterClockView?.let { clock ->
-            clock.setTextSize(unit, centerClockSize.toFloat())
-            if (enabled) {
-                setClockGravity(clock, Gravity.CENTER)
-            }
+            clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, FIXED_CLOCK_SIZE_SP.toFloat())
+            setClockGravity(clock, Gravity.CENTER)
         }
 
         mRightClockView?.let { clock ->
-            clock.setTextSize(unit, rightClockSize.toFloat())
-            if (enabled) {
-                setClockGravity(clock, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
-            }
+            clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, FIXED_CLOCK_SIZE_SP.toFloat())
+            setClockGravity(clock, Gravity.RIGHT or Gravity.CENTER_VERTICAL)
         }
 
-        HookEntry.log("setClockSize enabled=$enabled size=$customSize")
+        HookEntry.log("setClockSize fixed=$FIXED_CLOCK_SIZE_SP")
     }
 
     private fun setClockGravity(view: TextView, gravity: Int) {
