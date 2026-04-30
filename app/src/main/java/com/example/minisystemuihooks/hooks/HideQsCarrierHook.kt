@@ -2,8 +2,8 @@ package com.example.minisystemuihooks.hooks
 
 import android.view.View
 import android.view.ViewGroup
+import com.example.minisystemuihooks.HookConfig
 import com.example.minisystemuihooks.HookEntry
-import com.example.minisystemuihooks.HookPrefs
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -29,7 +29,7 @@ object HideQsCarrierHook {
                 "onInit",
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        val enabled = HookPrefs.isHideQsCarrierEnabled()
+                        val enabled = HookConfig.isHideQsCarrierEnabled()
                         HookEntry.log("$className.onInit, hideQs=$enabled")
                         if (!enabled) return
 
