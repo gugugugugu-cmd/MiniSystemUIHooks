@@ -1,6 +1,8 @@
 package com.example.minisystemuihooks.hooks
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
@@ -23,6 +25,8 @@ object StatusBarClockSizeHook {
     private var mCenterClockSize = 14
     private var mRightClockSize = 14
 
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     private val textChangeListener = object : TextWatcher {
         override fun beforeTextChanged(
             s: CharSequence?,
@@ -41,7 +45,8 @@ object StatusBarClockSizeHook {
         }
 
         override fun afterTextChanged(s: Editable?) {
-            setClockSize()
+            HookEntry.log("Clock text changed -> reapply size")
+            applyClockSizeRepeatedly()
         }
     }
 
@@ -76,6 +81,7 @@ object StatusBarClockSizeHook {
 
                             updateClockTextSize()
                             HookEntry.log("CollapsedStatusBarFragment hooked and clock views updated")
+                            applyClockSizeRepeatedly()
                         }
                     }
                 )
@@ -110,6 +116,7 @@ object StatusBarClockSizeHook {
 
                         updateClockTextSize()
                         HookEntry.log("PhoneStatusBarViewController.onViewAttached updated clock")
+                        applyClockSizeRepeatedly()
                     }
                 }
             )
@@ -153,6 +160,25 @@ object StatusBarClockSizeHook {
         mClockView?.removeTextChangedListener(textChangeListener)
         mCenterClockView?.removeTextChangedListener(textChangeListener)
         mRightClockView?.removeTextChangedListener(textChangeListener)
+    }
+
+    private fun applyClockSizeRepeatedly() {
+        // 立即应用
+        setClockSize()
+
+        // post 一次
+        mClockView?.post {
+            HookEntry.log("Reapply clock size via post")
+            setClockSize()
+        }
+
+        // 多次延迟兜底，覆盖 SystemUI 后续把默认值刷回去的情况
+        listOf(120L, 300L, 600L, 1000L).forEach { delayMs ->
+            mainHandler.postDelayed({
+                HookEntry.log("Reapply clock size delayed=${delayMs}ms")
+                setClockSize()
+            }, delayMs)
+        }
     }
 
     private fun setClockSize() {
